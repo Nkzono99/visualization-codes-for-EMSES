@@ -5,4 +5,4 @@ if [ ! -e ./get-pip.py ]; then
 fi
 
 pip install -r requirements.txt
-
+python configuration-test.py
