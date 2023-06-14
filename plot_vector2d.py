@@ -20,7 +20,7 @@ def parse_args():
         See official document (https://docs.python.org/3/library/argparse.html).
     """
     parser = ArgumentParser(
-        description='1D visualization of field data such as potential (phisp) and electron density (nd1p).'
+        description='2D vector visualization of vector data such as current (j1x, j2y) and electric field (ez).'
     )
 
     parser.add_argument('directory',
