@@ -1,4 +1,4 @@
-""" 2D colormap visualization of field data such as potential (phisp) and electron density (nd1p).
+""" 2D colormap visualization of scalar data such as potential (phisp) and electron density (nd1p).
 
 Usage
 -----
@@ -24,7 +24,7 @@ def parse_args():
     )
 
     parser.add_argument('directory',
-                        default='/home/t23545/work/flat_hole_comp/exp_hole_with_bluk_3',
+                        default='./',
                         nargs='?',
                         help='Directory where simulation output data exists')
     parser.add_argument('--index', '-i', type=int,
@@ -52,7 +52,7 @@ def load_data3d(h5_filepath, index):
     return data3d
 
 
-def main(args):
+def main():
     args = parse_args()
 
     directory = Path(args.directory)

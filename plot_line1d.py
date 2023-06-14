@@ -1,4 +1,4 @@
-""" 1D visualization of field data such as potential (phisp) and electron density (nd1p).
+""" 1D visualization of scalar data such as potential (phisp) and electron density (nd1p).
 
 Usage
 -----
@@ -24,7 +24,7 @@ def parse_args():
     )
 
     parser.add_argument('directory',
-                        default='/home/t23545/work/flat_hole_comp/exp_hole_with_bluk_3',
+                        default='./',
                         nargs='?',
                         help='Directory where simulation output data exists')
     parser.add_argument('--index', '-i', type=int,
