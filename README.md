@@ -4,6 +4,8 @@ Basic plotting scripts for EMSES output data.
 ## Configuration Setting
 Run a script to build a visualization configuration when cloned for the first time.
 ```
+git clone https://github.com/Nkzono99/visualization-codes-for-EMSES.git
+cd visualization-codes-for-EMSES
 source configuration.sh
 ```
 
