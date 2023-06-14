@@ -2,7 +2,7 @@
 Basic plotting scripts for EMSES output data.
 
 ## Configuration Setting
-
+Run a script to build a visualization configuration when cloned for the first time.
 ```
 source configuration.sh
 ```
