@@ -163,3 +163,7 @@ cython_debug/
 ./*.png
 data/
 get-pip.py
+.vscode
+mpi4py-3.1.4
+*.tar.gz
+sample.png
