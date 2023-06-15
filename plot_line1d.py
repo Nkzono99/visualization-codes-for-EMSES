@@ -33,6 +33,10 @@ def parse_args():
                         help='Field data name')
     parser.add_argument('--output', '-o', default=None,
                         help='Output image file name')
+    parser.add_argument('--axis', '-a', default='x', choices=['x', 'y', 'z'])
+    parser.add_argument('--x', '-x', default=None, type=int)
+    parser.add_argument('--y', '-y', default=None, type=int)
+    parser.add_argument('--z', '-z', default=None, type=int)
 
     return parser.parse_args()
 
@@ -57,6 +61,7 @@ def main():
 
     directory = Path(args.directory)
     dname = args.dname
+    axis = 'zyx'.index(args.axis)
 
     h5_filepath = directory / f'{dname}00_0000.h5'
 
@@ -64,15 +69,23 @@ def main():
 
     # Visualize data on a central axis parallel to the z-axis as an example.
     nz, ny, nx = data3d.shape
-    zs = np.arange(nz)
-    data1d = data3d[:, ny//2, nx//2]
+
+    x = args.x or nx//2
+    y = args.y or ny//2
+    z = args.z or nz//2
+    positions = [z, y, x]
+    positions[axis] = slice(None)
+    positions = tuple(positions)
+
+    horizons = np.arange(data3d.shape[axis])
+    data1d = data3d[positions]
 
     # Visualization with matplotlib.
     fig = plt.figure()
-    plt.plot(zs, data1d)
+    plt.plot(horizons, data1d)
 
     plt.title(f'{dname}')
-    plt.xlabel('z [grid]')
+    plt.xlabel(f'{args.axis} [grid]')
     plt.ylabel(f'{dname}')
     plt.grid()
 
@@ -83,7 +96,7 @@ def main():
     if args.output:
         output_filename = args.output
     else:
-        output_filename = f'{dname}_{args.index}_line1d.png'
+        output_filename = f'{dname}_{args.index}_{args.axis}_line1d.png'
 
     fig.tight_layout()
     fig.savefig(directory_to_save / output_filename)

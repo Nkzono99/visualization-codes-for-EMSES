@@ -33,6 +33,10 @@ def parse_args():
                         help='Field data name')
     parser.add_argument('--output', '-o', default=None,
                         help='Output image file name')
+    parser.add_argument('--axis', '-a', default='xy', choices=['xy', 'xz', 'yz'])
+    parser.add_argument('--x', '-x', default=None, type=int)
+    parser.add_argument('--y', '-y', default=None, type=int)
+    parser.add_argument('--z', '-z', default=None, type=int)
 
     return parser.parse_args()
 
@@ -57,6 +61,8 @@ def main():
 
     directory = Path(args.directory)
     dname = args.dname
+    axis0 = 'zyx'.index(args.axis[0])
+    axis1 = 'zyx'.index(args.axis[1])
 
     h5_filepath = directory / f'{dname}00_0000.h5'
 
@@ -64,22 +70,31 @@ def main():
 
     # Visualize data on a central x-z plane as an example.
     nz, ny, nx = data3d.shape
-    xs = np.arange(nx)
-    zs = np.arange(nz)
-    X, Z = np.meshgrid(xs, zs)
-    data2d = data3d[:, ny//2, :]
+
+    x = args.x or nx//2
+    y = args.y or ny//2
+    z = args.z or nz//2
+    positions = [z, y, x]
+    positions[axis0] = slice(None)
+    positions[axis1] = slice(None)
+    positions = tuple(positions)
+
+    horizons = np.arange(data3d.shape[axis0])
+    verticals = np.arange(data3d.shape[axis1])
+    H, V = np.meshgrid(horizons, verticals)
+    data2d = data3d[positions]
 
     # Visualization with matplotlib.
     fig = plt.figure()
-    cont = plt.contour(X, Z, data2d,
+    cont = plt.contour(H, V, data2d,
                        levels=5,
                        # colors=['black'],
                        alpha=1.0)
     cont.clabel(fmt='%1.1f', fontsize=12)
 
     plt.title(f'{dname}')
-    plt.xlabel('x [grid]')
-    plt.ylabel('z [grid]')
+    plt.xlabel(f'{args.axis[0]} [grid]')
+    plt.ylabel(f'{args.axis[1]} [grid]')
 
     # Save plotted image to <directory>/data/***.png.
     directory_to_save = directory / 'data'
@@ -88,7 +103,7 @@ def main():
     if args.output:
         output_filename = args.output
     else:
-        output_filename = f'{dname}_{args.index}_contour2d.png'
+        output_filename = f'{dname}_{args.index}_{args.axis}_contour2d.png'
 
     fig.tight_layout()
     fig.savefig(directory_to_save / output_filename)

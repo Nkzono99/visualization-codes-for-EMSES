@@ -31,6 +31,12 @@ def parse_args():
                         default=-1, help='Output index')
     parser.add_argument('--output', '-o', default=None,
                         help='Output image file name')
+    parser.add_argument('--dname', '-dn', default='j1',
+                        help='Vector field data name')
+    parser.add_argument('--axis', '-a', default='xy', choices=['xy', 'xz', 'yz'])
+    parser.add_argument('--x', '-x', default=None, type=int)
+    parser.add_argument('--y', '-y', default=None, type=int)
+    parser.add_argument('--z', '-z', default=None, type=int)
 
     return parser.parse_args()
 
@@ -56,38 +62,52 @@ def main():
     args = parse_args()
 
     directory = Path(args.directory)
+    dname = args.dname
+    axis0 = 'zyx'.index(args.axis[0])
+    axis1 = 'zyx'.index(args.axis[1])
 
-    h5_filepath = directory / f'j1x00_0000.h5'
-    j1x3d = load_data3d(h5_filepath, args.index)
+    dname0 = f'{dname}{args.axis[0]}'
+    h5_filepath = directory / f'{dname0}00_0000.h5'
+    data3d0 = load_data3d(h5_filepath, args.index)
 
-    h5_filepath = directory / f'j1z00_0000.h5'
-    j1z3d = load_data3d(h5_filepath, args.index)
+    dname1 = f'{dname}{args.axis[0]}'
+    h5_filepath = directory / f'{dname1}00_0000.h5'
+    data3d1 = load_data3d(h5_filepath, args.index)
 
     # Visualize data on a central x-z plane as an example.
-    nz, ny, nx = j1x3d.shape
-    xs = np.arange(nx)
-    zs = np.arange(nz)
-    X, Z = np.meshgrid(xs, zs)
-    j1x2d = j1x3d[:, ny//2, :]
-    j1z2d = j1z3d[:, ny//2, :]
+    nz, ny, nx = data3d0.shape
+
+    x = args.x or nx//2
+    y = args.y or ny//2
+    z = args.z or nz//2
+    positions = [z, y, x]
+    positions[axis0] = slice(None)
+    positions[axis1] = slice(None)
+    positions = tuple(positions)
+
+    horizons = np.arange(data3d0.shape[axis0])
+    verticals = np.arange(data3d0.shape[axis1])
+    H, V = np.meshgrid(horizons, verticals)
+    data2d0 = data3d0[positions]
+    data2d1 = data3d1[positions]
 
     # Set grid interval to make arrows easier to see.
     nskipx = 4
     nskipz = 4
-    X = X[::nskipz, ::nskipx]
-    Z = Z[::nskipz, ::nskipx]
-    j1x2d = j1x2d[::nskipz, ::nskipx]
-    j1z2d = j1z2d[::nskipz, ::nskipx]
+    H = H[::nskipz, ::nskipx]
+    V = V[::nskipz, ::nskipx]
+    data2d0 = data2d0[::nskipz, ::nskipx]
+    data2d1 = data2d1[::nskipz, ::nskipx]
 
     # Visualization with matplotlib.
     fig = plt.figure()
-    plt.quiver(X, Z, j1x2d, j1z2d,
+    plt.quiver(H, V, data2d0, data2d1,
                angles='xy',
                scale_units='xy')
 
-    plt.title(f'j1xz')
-    plt.xlabel('x [grid]')
-    plt.ylabel('z [grid]')
+    plt.title(f'{dname}{args.axis}')
+    plt.xlabel(f'{args.axis[0]} [grid]')
+    plt.ylabel(f'{args.axis[1]} [grid]')
 
     # Save plotted image to <directory>/data/***.png.
     directory_to_save = directory / 'data'
@@ -96,7 +116,7 @@ def main():
     if args.output:
         output_filename = args.output
     else:
-        output_filename = f'j1xz_{args.index}.png'
+        output_filename = f'{dname}{args.axis}_{args.index}_{args.axis}_vector2d.png'
 
     fig.tight_layout()
     fig.savefig(directory_to_save / output_filename)

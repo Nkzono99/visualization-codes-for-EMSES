@@ -31,6 +31,9 @@ def parse_args():
                         help='Field data name')
     parser.add_argument('--output', '-o', default=None,
                         help='Output image file name')
+    parser.add_argument('--x', '-x', default=None, type=int)
+    parser.add_argument('--y', '-y', default=None, type=int)
+    parser.add_argument('--z', '-z', default=None, type=int)
 
     return parser.parse_args()
 
@@ -65,8 +68,14 @@ def main():
 
     # Visualize timeseries data on a center point as an example.
     nt, nz, ny, nx = data4d.shape
+
+    x = args.x or nx//2
+    y = args.y or ny//2
+    z = args.z or nz//2
+    positions = (slice(None), z, y, x)
+
     ts = np.arange(nt)
-    data1d = data4d[:, nz//2, ny//2, nx//2]
+    data1d = data4d[positions]
 
     # Visualization with matplotlib.
     fig = plt.figure()
