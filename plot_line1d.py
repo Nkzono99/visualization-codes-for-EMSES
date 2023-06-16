@@ -37,6 +37,8 @@ def parse_args():
     parser.add_argument('--x', '-x', default=None, type=int)
     parser.add_argument('--y', '-y', default=None, type=int)
     parser.add_argument('--z', '-z', default=None, type=int)
+    parser.add_argument('--rescale', '-r', default=1.0, type=float,
+                        help='Multiplication factor to rescale data')
 
     return parser.parse_args()
 
@@ -78,7 +80,7 @@ def main():
     positions = tuple(positions)
 
     horizons = np.arange(data3d.shape[axis])
-    data1d = data3d[positions]
+    data1d = data3d[positions]*args.rescale
 
     # Visualization with matplotlib.
     fig = plt.figure()

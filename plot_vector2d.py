@@ -37,6 +37,8 @@ def parse_args():
     parser.add_argument('--x', '-x', default=None, type=int)
     parser.add_argument('--y', '-y', default=None, type=int)
     parser.add_argument('--z', '-z', default=None, type=int)
+    parser.add_argument('--rescale', '-r', default=1.0, type=float,
+                        help='Multiplication factor to rescale data')
 
     return parser.parse_args()
 
@@ -88,8 +90,8 @@ def main():
     horizons = np.arange(data3d0.shape[axis0])
     verticals = np.arange(data3d0.shape[axis1])
     H, V = np.meshgrid(horizons, verticals)
-    data2d0 = data3d0[positions]
-    data2d1 = data3d1[positions]
+    data2d0 = data3d0[positions]*args.rescale
+    data2d1 = data3d1[positions]*args.rescale
 
     # Set grid interval to make arrows easier to see.
     nskipx = 4
